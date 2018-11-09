@@ -1,114 +1,53 @@
 from slackclient import SlackClient
 from flask import Flask, request
 import os
-from SlackEventDispatcher import SlackEventDispatcher
 from SlackEvent import SlackEvent
+from EventDispatcher import SlackEventDispatcher
 import sqlite3
 from peewee import *
 from pprint import pprint
 import time
 import json
+from rtm import *
+from ANDREW import ANDREW
+from workspace import Workspace
+import asyncio
+from threading import *
+from command import *
+
 #   Init enviroment vars
 client_id = os.environ["SLACK_CLIENT_ID"]
 client_secret = os.environ["SLACK_CLIENT_SECRET"]
 oauth_scope = os.environ["SLACK_BOT_SCOPE"]
-
+verification_token = os.environ["SLACK_VERIFICATION_TOKEN"]
 db = SqliteDatabase('../data/andrew')
 
-
-class RTMEvent(SlackEvent):
-    TYPING = "user_typing"
-    MESSAGE = "message"
-    FILE_SHARE = "file_shared"
-
-    def __init__(self, event_type, data, sc):
-        self._type = event_type
-        self._data = data
-        self._sc = sc
-
-    @property
-    def data(self):
-        return self._data
-    
-    @property
-    def sc(self):
-        return self._sc
-
-
-class RTMListener(object):
-    def __init__(self, event_dispatcher):
-        self.event_dispatcher = event_dispatcher
-        self.event_dispatcher.add_event_listener(
-            RTMEvent.FILE_SHARE, self.onFileshare
-        )
-
-        self.event_dispatcher.add_event_listener(
-            RTMEvent.TYPING, self.onTyping
-        )
-
-        self.event_dispatcher.add_event_listener(
-            RTMEvent.MESSAGE, self.onMessage
-        )
-
-    def onTyping(self, event):
-        pass
-
+class ping(RTMListener):
     def onMessage(self, event):
-        pass
+        if(event.data['text'] == "ping"):
+            event.sc.rtm_send_message(event.data['channel'],'pong')
 
-    def onFileshare(self, event):
-        pass
+class commandHandler(CommandListener):
+    def onCommand(self, event):
+        pprint(event.data)
 
-    def emit(self, eventType, data, sc):
-        self.event_dispatcher.dispatch_event(
-           RTMEvent(eventType,data, sc)
-        )
-
-
-
-class myRtmHandler(RTMListener):
-    def onTyping(self, event):
-        pprint(event.data['user'])
-
-    def onMessage(self, event):
-        event.sc.rtm_send_message(event.data['channel'], "Hallo broeder")
-
-
-
-dispatcher = SlackEventDispatcher()
-rtmListener = myRtmHandler(dispatcher)
-
-
-class Workspace(Model):
-    id = CharField()
-    name = TextField()
-    url = TextField()
-    access_token = TextField()
-    bot_token = TextField()
-    class Meta:
-        database = db
-
-for workspace in Workspace.select():
-    sc = SlackClient(workspace.bot_token)
-
-    if sc.rtm_connect():
-        while sc.server.connected is True:
-            for rtmevent in sc.rtm_read():
-                if('type' in rtmevent):
-                    rtmListener.emit(rtmevent['type'], rtmevent,sc)
-            time.sleep(0.4)
-
-class SlackWorkspace():
-    def __init__(self, name, url, access_token, bot_token):
-        self._name = name
-        self._url = url
-        self._bot_token = bot_token
-        self._access_token = access_token
-
+# Register handlers here.
+andrew = ANDREW()
+andrew.registerRtmListener(ping)
+andrew.registerCommandListener(commandHandler)
+andrew.bootstrap()
 
 app = Flask(__name__)
 
 
+@app.route("/command/<command>", methods=["POST"])
+def command_request(command):
+    if(request.form["token"] != verification_token):
+        return "", 401 
+
+    #TODO: get sc by team id on here
+    andrew.emitEvent(CommandEvent(CommandEvent.COMMANDSEND,request.form, None))
+    return "", 200
 
 @app.route("/begin_auth", methods=["GET"])
 def pre_install():
