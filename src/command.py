@@ -1,21 +1,21 @@
 from SlackEvent import SlackEvent
 from EventDispatcher import SlackEventDispatcher
-
+from workspace import Workspace
 class CommandEvent(SlackEvent):
     COMMANDSEND = "command_send"
 
-    def __init__(self, event_type, data, sc):
+    def __init__(self, event_type, data, workspace: Workspace):
         self._type = event_type
         self._data = data
-        self._sc = sc
+        self._workspace = workspace
 
     @property
     def data(self):
         return self._data
     
     @property
-    def sc(self):
-        return self._sc
+    def workspace(self):
+        return self._workspace
 
 
 class CommandListener(object):

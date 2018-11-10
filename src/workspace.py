@@ -7,5 +7,6 @@ class Workspace(Model):
     url = TextField()
     access_token = TextField()
     bot_token = TextField()
+    team_id = TextField()
     class Meta:
         database = db

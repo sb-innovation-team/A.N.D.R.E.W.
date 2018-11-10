@@ -29,7 +29,8 @@ class ping(RTMListener):
 
 class commandHandler(CommandListener):
     def onCommand(self, event):
-        pprint(event.data)
+        sc = SlackClient(event.workspace.access_token)
+        pprint(sc.api_call('api.test'))
 
 # Register handlers here.
 andrew = ANDREW()
@@ -45,14 +46,12 @@ def command_request(command):
     if(request.form["token"] != verification_token):
         return "", 401 
 
-    #TODO: get sc by team id on here
-    andrew.emitEvent(CommandEvent(CommandEvent.COMMANDSEND,request.form, None))
+    commandWorkspace = Workspace.get(Workspace.team_id == request.form['team_id'])
+    andrew.emitEvent(CommandEvent(CommandEvent.COMMANDSEND,request.form, commandWorkspace))
     return "", 200
 
 @app.route("/begin_auth", methods=["GET"])
 def pre_install():
-  print(client_id);
-
   return '''
       <a href="https://slack.com/oauth/authorize?scope={0}&client_id={1}">
           Add to Slack
@@ -74,12 +73,13 @@ def post_install():
         code=auth_code
     )
     
-    pprint(auth_response);
     # Sla hier je access tokens op.
     workspace_access_token = auth_response['access_token']
     workspace_bot_token = auth_response['bot']['bot_access_token']
+    
 
-    workspace = Workspace(name ='Social Brothers',url = 'socialbrothers.slack.com', access_token = workspace_access_token, bot_token = workspace_bot_token)
+    pprint(auth_response)
+    workspace = Workspace(name =auth_response['team_name'], url = 'slack.com', access_token = workspace_access_token, bot_token = workspace_bot_token, team_id = auth_response['team_id'])
     workspace.save()
 
 
