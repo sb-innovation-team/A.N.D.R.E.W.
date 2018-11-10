@@ -15,6 +15,10 @@ import asyncio
 from threading import *
 from command import *
 
+# Import handler classes
+from exampleCommand import exampleCommand
+from exampleRtm import exampleRtm
+
 #   Init enviroment vars
 client_id = os.environ["SLACK_CLIENT_ID"]
 client_secret = os.environ["SLACK_CLIENT_SECRET"]
@@ -22,20 +26,13 @@ oauth_scope = os.environ["SLACK_BOT_SCOPE"]
 verification_token = os.environ["SLACK_VERIFICATION_TOKEN"]
 db = SqliteDatabase('../data/andrew')
 
-class ping(RTMListener):
-    def onMessage(self, event):
-        if(event.data['text'] == "ping"):
-            event.sc.rtm_send_message(event.data['channel'],'pong')
 
-class commandHandler(CommandListener):
-    def onCommand(self, event):
-        sc = SlackClient(event.workspace.access_token)
-        pprint(sc.api_call('api.test'))
+
 
 # Register handlers here.
 andrew = ANDREW()
-andrew.registerRtmListener(ping)
-andrew.registerCommandListener(commandHandler)
+andrew.registerRtmListener(exampleRtm)
+andrew.registerCommandListener(exampleCommand)
 andrew.bootstrap()
 
 app = Flask(__name__)
