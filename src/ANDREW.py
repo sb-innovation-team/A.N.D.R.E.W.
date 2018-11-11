@@ -55,7 +55,7 @@ class ANDREW:
                     for rtmevent in sc.rtm_read():
                         if('type' in rtmevent):
                             self.emitEvent(RTMEvent(rtmevent['type'], rtmevent,sc))
-                    time.sleep(0.4)
+                    time.sleep(self._rtmPollingrate)
 
 
     def handleCommand(self, command, data):

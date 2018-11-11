@@ -16,7 +16,7 @@ from threading import *
 from command import *
 
 # Import handler classes
-from exampleCommand import exampleCommand
+from exampleCo  mmand import exampleCommand
 from exampleRtm import exampleRtm
 
 #   Init enviroment vars
@@ -24,6 +24,8 @@ client_id = os.environ["SLACK_CLIENT_ID"]
 client_secret = os.environ["SLACK_CLIENT_SECRET"]
 oauth_scope = os.environ["SLACK_BOT_SCOPE"]
 verification_token = os.environ["SLACK_VERIFICATION_TOKEN"]
+
+# Load database
 db = SqliteDatabase('../data/andrew')
 
 
@@ -38,8 +40,11 @@ andrew.bootstrap()
 app = Flask(__name__)
 
 
+# Handles all incomming commands
 @app.route("/command/<command>", methods=["POST"])
 def command_request(command):
+
+    # Verify if the command is comming from slack
     if(request.form["token"] != verification_token):
         return "", 401 
 
@@ -47,6 +52,8 @@ def command_request(command):
     andrew.emitEvent(CommandEvent(CommandEvent.COMMANDSEND,request.form, commandWorkspace))
     return "", 200
 
+
+# Oauth step 1
 @app.route("/begin_auth", methods=["GET"])
 def pre_install():
   return '''
@@ -57,6 +64,8 @@ def pre_install():
 
 
 
+
+# Oauth step 2 saving tokens and workspace
 @app.route("/finish_auth", methods=["GET", "POST"])
 def post_install():
     auth_code = request.args['code']    
@@ -70,15 +79,13 @@ def post_install():
         code=auth_code
     )
     
-    # Sla hier je access tokens op.
     workspace_access_token = auth_response['access_token']
     workspace_bot_token = auth_response['bot']['bot_access_token']
-    
 
-    pprint(auth_response)
+    # Add team to database   
     workspace = Workspace(name =auth_response['team_name'], url = 'slack.com', access_token = workspace_access_token, bot_token = workspace_bot_token, team_id = auth_response['team_id'])
     workspace.save()
 
 
-    return 'success';
+    return 'success', 200
     
