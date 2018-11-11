@@ -31,10 +31,16 @@ db = SqliteDatabase('../data/andrew')
 
 
 
-# Register handlers here.
 andrew = ANDREW()
+
+
+# Start of handlers here.
+
 andrew.registerRtmListener(exampleRtm)
 andrew.registerCommandListener(exampleCommand)
+
+# End of handlers here.
+
 andrew.bootstrap()
 
 app = Flask(__name__)
