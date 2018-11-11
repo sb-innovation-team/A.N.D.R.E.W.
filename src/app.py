@@ -16,7 +16,7 @@ from threading import *
 from command import *
 
 # Import handler classes
-from exampleCo  mmand import exampleCommand
+from exampleCommand import exampleCommand
 from exampleRtm import exampleRtm
 
 #   Init enviroment vars
@@ -87,5 +87,5 @@ def post_install():
     workspace.save()
 
 
-    return 'success', 200
+    return 'success', 200   
     
