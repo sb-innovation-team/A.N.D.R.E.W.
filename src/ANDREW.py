@@ -11,29 +11,36 @@ from pprint import pprint
 from rtm import RTMEvent
 from threading import *
 from command import *
-listenerTypes = Enum('RTM', 'Command')
 
 class ANDREW:
     def __init__(self):
+        self._thread = None
         self._event_dispatcher = SlackEventDispatcher()
         self._rtm_listeners = []
         self._message_listeners = []
         self._command_listeners = []
         self._rtmPollingrate = 0.5
+        self._runRtm = True
 
 
     def bootstrap(self):
-        t = Thread(target=self.startRtm)
-        t.daemon = True
-        t.start()
+        self._runRtm = True
+        self._thread = Thread(target=self.startRtm)
+        self._thread.daemon = True
+        self._thread.start()
 
+
+    def reload(self):
+        print("Reloading rtm listeners....")
+        self._runRtm = False
+        time.sleep(1)
+        self.bootstrap()
+        print("Reloading complete!")
+
+        
     @property
     def rtmPollingrate(self, rtmPollingrate):
         self._rtmPollingrate = rtmPollingrate
-
-    @staticmethod
-    def listenerTypes():
-        return listenerTypes
 
     def registerRtmListener(self, rtmHandler: RTMListener):
         return rtmHandler(self._event_dispatcher)
@@ -51,7 +58,7 @@ class ANDREW:
         for workspace in Workspace.select():
             sc = SlackClient(workspace.bot_token)
             if sc.rtm_connect():
-                while sc.server.connected is True:
+                while sc.server.connected == True and self._runRtm is True:
                     for rtmevent in sc.rtm_read():
                         if('type' in rtmevent):
                             self.emitEvent(RTMEvent(rtmevent['type'], rtmevent,sc))

@@ -55,6 +55,10 @@ def command_request(command):
         return "", 401 
 
     commandWorkspace = Workspace.get(Workspace.team_id == request.form['team_id'])
+
+    if(commandWorkspace == None):
+        return "Workspace not found", 404
+        
     andrew.emitEvent(CommandEvent(CommandEvent.COMMANDSEND,request.form, commandWorkspace))
     return "", 200
 
@@ -62,11 +66,11 @@ def command_request(command):
 # Oauth step 1
 @app.route("/begin_auth", methods=["GET"])
 def pre_install():
-  return '''
+    return '''
       <a href="https://slack.com/oauth/authorize?scope={0}&client_id={1}">
           Add to Slack
       </a>
-  '''.format(oauth_scope, client_id)
+    '''.format(oauth_scope, client_id)
 
 
 
@@ -92,6 +96,7 @@ def post_install():
     workspace = Workspace(name =auth_response['team_name'], url = 'slack.com', access_token = workspace_access_token, bot_token = workspace_bot_token, team_id = auth_response['team_id'])
     workspace.save()
 
-
+    # Reload listeners
+    andrew.reload()
     return 'success', 200   
     
