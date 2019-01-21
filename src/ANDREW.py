@@ -11,6 +11,7 @@ from pprint import pprint
 from rtm import RTMEvent
 from threading import *
 from command import *
+import threading
 
 class ANDREW:
     def __init__(self):
@@ -52,18 +53,22 @@ class ANDREW:
         self._event_dispatcher.dispatch_event(
            event
         )
-    
+
+    def rtmListLoop(self, workspace):
+        sc = SlackClient(workspace.bot_token)
+        if sc.rtm_connect():
+            while sc.server.connected == True and self._runRtm is True:
+                for rtmevent in sc.rtm_read():
+                    if('type' in rtmevent):
+                        self.emitEvent(RTMEvent(rtmevent['type'], rtmevent,sc))
+                time.sleep(self._rtmPollingrate)
+
     # Starts the rtm server for all of the servers and handles the rtm events.
     def startRtm(self):
+        pprint(Workspace.select())
         for workspace in Workspace.select():
-            sc = SlackClient(workspace.bot_token)
-            if sc.rtm_connect():
-                while sc.server.connected == True and self._runRtm is True:
-                    for rtmevent in sc.rtm_read():
-                        if('type' in rtmevent):
-                            self.emitEvent(RTMEvent(rtmevent['type'], rtmevent,sc))
-                    time.sleep(self._rtmPollingrate)
-
+            _rtmThread = threading.Thread(target=self.rtmListLoop, args=(workspace,))
+            _rtmThread.start()
 
     def handleCommand(self, command, data):
         pass

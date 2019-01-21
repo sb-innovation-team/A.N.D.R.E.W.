@@ -28,9 +28,6 @@ verification_token = os.environ["SLACK_VERIFICATION_TOKEN"]
 # Load database
 db = SqliteDatabase('../data/andrew')
 
-
-
-
 andrew = ANDREW()
 
 
