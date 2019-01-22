@@ -18,7 +18,6 @@ from command import *
 # Import handler classes
 from exampleCommand import exampleCommand
 from exampleRtm import exampleRtm
-
 #   Init enviroment vars
 client_id = os.environ["SLACK_CLIENT_ID"]
 client_secret = os.environ["SLACK_CLIENT_SECRET"]
@@ -93,7 +92,9 @@ def post_install():
     workspace = Workspace(name =auth_response['team_name'], url = 'slack.com', access_token = workspace_access_token, bot_token = workspace_bot_token, team_id = auth_response['team_id'])
     workspace.save()
 
+
+    # Disable reload for now
     # Reload listeners
-    andrew.reload()
+    # andrew.reload()
     return 'success', 200   
     

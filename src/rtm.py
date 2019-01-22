@@ -21,9 +21,9 @@ class RTMEvent(SlackEvent):
 
 
 class RTMListener(object):
-    def __init__(self, event_dispatcher):
+    def __init__(self, event_dispatcher, ANDREW):
         self.event_dispatcher = event_dispatcher
-        
+        self.ANDREW = ANDREW
         self.event_dispatcher.add_event_listener(
             RTMEvent.FILE_SHARE, self.onFileshare
         )
