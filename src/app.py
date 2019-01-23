@@ -68,9 +68,6 @@ def pre_install():
       </a>
     '''.format(oauth_scope, client_id)
 
-
-
-
 # Oauth step 2 saving tokens and workspace
 @app.route("/finish_auth", methods=["GET", "POST"])
 def post_install():
@@ -92,9 +89,8 @@ def post_install():
     workspace = Workspace(name =auth_response['team_name'], url = 'slack.com', access_token = workspace_access_token, bot_token = workspace_bot_token, team_id = auth_response['team_id'])
     workspace.save()
 
-
     # Disable reload for now
     # Reload listeners
-    # andrew.reload()
+    # andrew.loadRtm(workspace)
     return 'success', 200   
     

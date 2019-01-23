@@ -34,6 +34,11 @@ class ANDREW:
             thread.start()
         print("Rtm listeners loaded.")
 
+    def loadRtm(self, workspace):
+        _rtmThread = Process(target=self.rtmListLoop, args=(workspace,))
+        _rtmThread.daemon = True
+        self._threads.append(_rtmThread)
+
     # reload is broken for now..
     def reload(self):
         print("Stopping rtm listeners...")
@@ -55,7 +60,7 @@ class ANDREW:
         return rtmHandler(self._event_dispatcher, self)
 
     def registerCommandListener(self, commandHandler: CommandListener):
-        return commandHandler(self._event_dispatcher)
+        return commandHandler(self._event_dispatcher, self)
 
     def emitEvent(self, event: SlackEvent):
         self._event_dispatcher.dispatch_event(
