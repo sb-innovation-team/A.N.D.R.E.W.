@@ -25,7 +25,7 @@ oauth_scope = os.environ["SLACK_BOT_SCOPE"]
 verification_token = os.environ["SLACK_VERIFICATION_TOKEN"]
 
 # Load database
-db = SqliteDatabase('../data/andrew')
+db = SqliteDatabase(os.environ['DATABASE'])
 
 andrew = ANDREW()
 
@@ -94,3 +94,6 @@ def post_install():
     # andrew.loadRtm(workspace)
     return 'success', 200   
     
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)

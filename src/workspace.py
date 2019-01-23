@@ -1,6 +1,7 @@
 
 from peewee import *
-db = SqliteDatabase('../data/andrew')
+import os
+db = SqliteDatabase(os.environ['DATABASE'])
 class Workspace(Model):
     id = CharField()
     name = TextField()
