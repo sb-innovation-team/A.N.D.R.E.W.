@@ -2,7 +2,7 @@
 A.N.D.R.E.W (Automated Neural Diagnostics and Reactive Electronics Webservice) is an attempt at making it easier to extend slack functionalities. Mainly for use at our office.
 
 
-## How to create a ANDREW listener?
+## How to create an ANDREW listener?
 ANDREW has multiple types of listeners:
 - RTM ( Listens to the real time messaging api from slack )
 - Command ( Listens for command requests on the [url]/commands/[command] route)
