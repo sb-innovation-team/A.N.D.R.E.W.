@@ -13,7 +13,7 @@ from command import *
 from multiprocessing import Process
 import multiprocessing as mp
 import threading
-
+from messageBuilder import *
 class ANDREW:
     def __init__(self):
         self._threads = []
@@ -86,4 +86,8 @@ class ANDREW:
 
     def handleCommand(self, command, data):
         pass
+
+    def sendMessage(self, sc: SlackClient, **kwargs):
+        #TODO: Implement logging or something like that
+        return sc.api_call('chat.postMessage', **kwargs)
         
