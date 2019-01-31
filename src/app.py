@@ -18,6 +18,7 @@ from command import *
 # Import handler classes
 from exampleCommand import exampleCommand
 from exampleRtm import exampleRtm
+from quotesApiCommand import quotesCommand
 #   Init enviroment vars
 client_id = os.environ["SLACK_CLIENT_ID"]
 client_secret = os.environ["SLACK_CLIENT_SECRET"]
@@ -34,6 +35,7 @@ andrew = ANDREW()
 
 andrew.registerRtmListener(exampleRtm)
 andrew.registerCommandListener(exampleCommand)
+andrew.registerCommandListener(quotesCommand)
 
 # End of handlers here.
 
